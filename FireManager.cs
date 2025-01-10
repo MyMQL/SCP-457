@@ -2,27 +2,27 @@
 using System.Linq;
 using System.Timers;
 using Exiled.API.Features;
-using PlayerRoles;
 using UnityEngine;
 
 namespace SCP457Plugin
 {
     public static class FireManager
     {
-        private static readonly Dictionary<Player, Timer> BurnTimers = new Dictionary<Player, Timer>();
+        private static readonly Dictionary<Player, Timer> BurnTimers = new();
 
         public static void StartFireLoop(Player scp457, float burnRadius, int burnDamage, int burnDuration)
         {
-            Plugin.Instance.LogDebug($"Rozpoczęto pętlę podpaleń dla SCP-457 (Gracz: {scp457.Nickname}).");
+            Plugin.Instance.LogDebug($"Started fire loop for SCP-457 (Player: {scp457.Nickname}).");
 
             Timer fireLoop = new Timer(1000) { AutoReset = true };
-            fireLoop.Elapsed += (sender, args) =>
+            fireLoop.Elapsed += (_, _) =>
             {
-                foreach (var player in Player.List.Where(p => p.IsHuman && p.Role != RoleTypeId.Spectator && p != scp457))
+                foreach (var player in Player.List.Where(p => p.IsHuman && p.Role != PlayerRoles.RoleTypeId.Spectator && p != scp457))
                 {
-                    if (Vector3.Distance(scp457.Position, player.Position) <= burnRadius)
+                    if (Vector3.Distance(scp457.Position, player.Position) <= burnRadius) // Poprawka: Użycie Vector3.Distance
                     {
                         ApplyBurn(player, burnDamage, burnDuration);
+                        player.ShowHint("You are burning! Move away from the flames!", 1);
                     }
                 }
             };
@@ -33,10 +33,10 @@ namespace SCP457Plugin
         {
             if (BurnTimers.ContainsKey(player)) return;
 
-            Plugin.Instance.LogDebug($"Gracz {player.Nickname} został podpalony na {duration} sekund.");
+            Plugin.Instance.LogDebug($"Player {player.Nickname} is burning for {duration} seconds.");
 
             Timer burnTimer = new Timer(1000) { AutoReset = true };
-            burnTimer.Elapsed += (sender, args) =>
+            burnTimer.Elapsed += (_, _) =>
             {
                 if (duration > 0)
                 {
@@ -53,17 +53,13 @@ namespace SCP457Plugin
             BurnTimers[player] = burnTimer;
         }
 
-        public static void StopFireLoop(Player scp457)
+        public static void StopFireLoop()
         {
-            Plugin.Instance.LogDebug("Zatrzymano pętlę podpaleń SCP-457.");
-
-            foreach (var player in BurnTimers.Keys.ToList())
+            Plugin.Instance.LogDebug("Stopped fire loop for SCP-457.");
+            foreach (var timer in BurnTimers.Values)
             {
-                if (BurnTimers.TryGetValue(player, out Timer timer))
-                {
-                    timer.Stop();
-                    timer.Dispose();
-                }
+                timer.Stop();
+                timer.Dispose();
             }
             BurnTimers.Clear();
         }

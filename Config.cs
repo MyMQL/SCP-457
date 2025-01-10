@@ -1,4 +1,6 @@
 ﻿using Exiled.API.Interfaces;
+using PlayerRoles;
+using Exiled.API.Enums;
 
 namespace SCP457Plugin
 {
@@ -9,14 +11,10 @@ namespace SCP457Plugin
 
         public float SpawnChance { get; set; } = 50f;
         public float BurnRadius { get; set; } = 2f;
-        public int BurnDamagePerSecond { get; set; } = 1;
+        public int BurnDamagePerSecond { get; set; } = 15;
         public int BurnDuration { get; set; } = 5;
         public int TouchDamage { get; set; } = 50;
         public int StartHealth { get; set; } = 2800;
-        public int StartAHp { get; set; } = 300;
-        public string FireSound { get; set; } = "/home/container/.config/EXILED/Configs/SCP457/fire.ogg";
-        public int StartShield { get; set; } = 300;
-
+        public RoomType SpawnRoomType { get; set; } = RoomType.Hcz939;
     }
 }
-
